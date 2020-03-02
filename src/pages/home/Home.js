@@ -1,20 +1,25 @@
 import React, {useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {SafeAreaView, FlatList, StyleSheet, Image} from 'react-native';
+import {SafeAreaView, FlatList, StyleSheet, View} from 'react-native';
 import {Searchbar} from 'react-native-paper';
 
-import {retrieveCards} from '../redux/actions/cards';
+import {retrieveCards} from '../../redux/actions/cards';
+import {Card, SwipeableRow} from '../../components';
+import {gestureHandlerRootHOC} from 'react-native-gesture-handler';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const cards = useSelector(state => state.cards.cards);
-  console.log(cards);
   const handleSearch = useCallback(() => dispatch(retrieveCards(searchQuery)), [
     dispatch,
     searchQuery,
   ]);
+  const rightActions = [
+    {title: 'Add', color: '#ffab00', x: 144},
+    {title: 'Remove', color: '#dd2c00', x: 72},
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -25,11 +30,11 @@ const Home = ({navigation}) => {
         onIconPress={handleSearch}
       />
       <FlatList
-        style={styles.cardContainer}
         data={cards.data}
-        // numColumns={2}
         renderItem={({item}) => (
-          <Image style={styles.card} source={{uri: item.image_uris.normal}} />
+          <SwipeableRow actionsWidth={144} rightActions={rightActions}>
+            <Card cardObject={item} />
+          </SwipeableRow>
         )}
       />
     </SafeAreaView>
@@ -41,13 +46,7 @@ const styles = StyleSheet.create({
   searchbar: {
     marginBottom: 10,
   },
-  card: {
-    height: 500,
-    resizeMode: 'contain',
-  },
-  cardContainer: {
-    marginBottom: 10,
-  },
 });
 
-export default Home;
+const HomeComponent = gestureHandlerRootHOC(Home);
+export default HomeComponent;
